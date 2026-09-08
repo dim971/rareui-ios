@@ -21,6 +21,7 @@ let catalog: [CatalogSection] = [
         bounceSidebarEntry,
         hookSidebarEntry,
         gooeyNavEntry,
+        proximitySidebarEntry,
         scrollProgressEntry
     ]),
     CatalogSection("Inputs", entries: [
