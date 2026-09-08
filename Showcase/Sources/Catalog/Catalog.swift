@@ -25,6 +25,7 @@ let catalog: [CatalogSection] = [
         otpInputEntry
     ]),
     CatalogSection("Feedback", entries: [
+        emojiReactionEntry,
         notificationBellEntry
     ])
 ]
