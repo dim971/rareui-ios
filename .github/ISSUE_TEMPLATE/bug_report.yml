@@ -1,0 +1,62 @@
+name: Bug report
+description: Something behaves, draws or animates differently than it should
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. If this is about how something *moves*, a short
+        screen recording says more than any description, especially one that
+        shows the same component on [rareui.com](https://www.rareui.com/components)
+        next to it.
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you saw, and what you expected instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: How to reproduce
+      description: The smallest snippet that shows it, with the values you passed.
+      render: swift
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: RareUI version
+      placeholder: "0.1.0"
+    validations:
+      required: true
+
+  - type: input
+    id: platform
+    attributes:
+      label: Platform and toolchain
+      placeholder: "iOS 18.2 simulator, Xcode 16.2"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: reduced-motion
+    attributes:
+      label: Is Reduce Motion on?
+      description: Several components deliberately behave differently when it is.
+      options:
+        - "No"
+        - "Yes"
+        - "Not sure"
+    validations:
+      required: true
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
+      description: Screen recordings are very welcome for motion problems.

@@ -1,0 +1,17 @@
+Rare UI for SwiftUI
+===================
+
+This package is a native SwiftUI port of Rare UI, a registry of animated
+React components for the web.
+
+    Rare UI: https://www.rareui.com
+    https://github.com/swamimalode07/rare-ui
+    Copyright (c) 2026 Swami Malode
+    Licensed under the MIT License
+
+Every component under Sources/RareUI/Components is a port of the matching
+file in upstream's `components/ui` directory: the layout, the palette, the
+interaction model and the animation constants are taken from that source
+rather than reinvented. Test fixtures under Tests/RareUITests/Fixtures are
+generated from the upstream sources so the numeric parts of the port can be
+verified against the original.

@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Upstream Rare UI
+    url: https://github.com/swamimalode07/rare-ui
+    about: For the original React registry this is a port of.
+  - name: Rare UI for Jetpack Compose
+    url: https://github.com/dim971/rareui-android
+    about: The Android twin of this library.
