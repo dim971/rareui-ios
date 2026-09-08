@@ -13,7 +13,9 @@ let catalog: [CatalogSection] = [
     CatalogSection("Display", entries: [
         animatedCounterEntry
     ]),
-    CatalogSection("AI Kit", entries: []),
+    CatalogSection("AI Kit", entries: [
+        matrixOrbEntry
+    ]),
     CatalogSection("Navigation", entries: []),
     CatalogSection("Inputs", entries: []),
     CatalogSection("Feedback", entries: [])
