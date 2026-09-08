@@ -21,17 +21,20 @@ public enum SVGPath {
     ///
     /// The strings are icon definitions written into the source, so there is a small fixed
     /// number of them and nothing to evict.
-    @MainActor private static var cache: [String: Path] = [:]
+    ///
+    /// Behind a lock rather than on an actor, because `Shape.path(in:)` is not isolated to
+    /// anything: SwiftUI is free to ask a shape for its path from whichever thread is
+    /// laying out at the time, and an icon has to be able to answer.
+    private static let cache = SVGPathCache()
 
     /// Builds a path from an SVG `d` string, reusing an earlier reading of the same string.
     ///
     /// - Parameter d: The path data, as it appears in the `d` attribute.
     /// - Returns: The path.
-    @MainActor
     public static func cached(_ d: String) -> Path {
-        if let known = cache[d] { return known }
+        if let known = cache.read(d) { return known }
         let parsed = path(d)
-        cache[d] = parsed
+        cache.write(parsed, for: d)
         return parsed
     }
 
@@ -440,7 +443,7 @@ public struct SVGShape: Shape {
 
     public func path(in rect: CGRect) -> Path {
         guard viewBox.width > 0, viewBox.height > 0 else { return Path() }
-        let drawing = MainActor.assumeIsolated { SVGPath.cached(d) }
+        let drawing = SVGPath.cached(d)
 
         var scaleX = rect.width / viewBox.width
         var scaleY = rect.height / viewBox.height
@@ -466,5 +469,23 @@ public struct SVGShape: Shape {
     /// - Returns: The matching unit point.
     public func unitPoint(_ point: CGPoint) -> UnitPoint {
         UnitPoint(x: point.x / viewBox.width, y: point.y / viewBox.height)
+    }
+}
+
+/// The path cache's storage, which is shared and therefore has to be locked.
+private final class SVGPathCache: @unchecked Sendable {
+    private var paths: [String: Path] = [:]
+    private let lock = NSLock()
+
+    func read(_ d: String) -> Path? {
+        lock.lock()
+        defer { lock.unlock() }
+        return paths[d]
+    }
+
+    func write(_ path: Path, for d: String) {
+        lock.lock()
+        defer { lock.unlock() }
+        paths[d] = path
     }
 }

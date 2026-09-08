@@ -54,7 +54,6 @@ struct BellIcon: View {
     }
 
     /// The top middle of the clapper, in the icon's unit space.
-    @MainActor
     private static var tongueAnchor: UnitPoint {
         let bounds = SVGPath.cached(tongue.d).boundingRect
         return tongue.unitPoint(CGPoint(x: bounds.midX, y: bounds.minY))
