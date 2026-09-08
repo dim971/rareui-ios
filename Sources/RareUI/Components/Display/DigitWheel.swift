@@ -35,30 +35,11 @@ private let wheelFade = LinearGradient(
     endPoint: .bottom
 )
 
-/// Where the wheel actually is, as opposed to where it has been told to go.
-///
-/// SwiftUI's `@State` holds the value a spring was aimed at, not the value it is
-/// passing through, and the difference matters here: upstream re-aims a wheel from
-/// where it currently is, so a value that changes several times inside one roll never
-/// queues up a backlog of turns. Reading the interpolated value back out means writing
-/// it down as the animation passes through, which is what this is for.
-///
-/// It holds no observable state, so writing to it during a layout pass invalidates
-/// nothing and cannot loop.
-///
-/// The unchecked conformance is safe rather than convenient: this is only ever read and
-/// written from a view's layout and body, which SwiftUI runs on the main actor. It cannot
-/// be main actor isolated instead, because `Animatable.animatableData` is not, and a
-/// modifier holding an isolated reference would carry that isolation into the conformance.
-private final class WheelPosition: @unchecked Sendable {
-    var live: Double = 0
-}
-
 /// Turns the wheel by offsetting the stack of faces, one face per whole turn.
 private struct WheelTurn: ViewModifier, Animatable {
     var position: Double
     let faceHeight: CGFloat
-    let tracker: WheelPosition
+    let tracker: RareUILiveValue
 
     /// `ViewModifier` is main actor isolated and `Animatable` is not, so without this the
     /// conformance is rejected as crossing between the two.
@@ -68,7 +49,7 @@ private struct WheelTurn: ViewModifier, Animatable {
     }
 
     func body(content: Content) -> some View {
-        tracker.live = position
+        tracker.value = position
         // The offset wraps with the position, which is why the eleventh face exists: at
         // the moment the wrap happens the face leaving the top and the face arriving are
         // the same glyph, so nothing jumps.
@@ -90,7 +71,7 @@ struct DigitWheel: View {
 
     @State private var position: Double
     @State private var goal: Double
-    @State private var tracker = WheelPosition()
+    @State private var tracker = RareUILiveValue()
 
     /// Motion's `{ visualDuration: pace, bounce: 0.18 }`.
     private static var bounce: Double {
@@ -120,7 +101,7 @@ struct DigitWheel: View {
         .clipped()
         .mask(wheelFade)
         .onAppear {
-            tracker.live = position
+            tracker.value = position
             // A wheel that was already on screen when the counter appeared starts settled,
             // because its seed is its own digit. One that appeared later starts at zero
             // and rolls up into place.
@@ -141,11 +122,11 @@ struct DigitWheel: View {
         guard !reduceMotion else {
             goal = Double(digit)
             position = Double(digit)
-            tracker.live = Double(digit)
+            tracker.value = Double(digit)
             return
         }
 
-        goal = wheelGoal(aimedAt: goal, from: tracker.live, digit: digit, heading: heading)
+        goal = wheelGoal(aimedAt: goal, from: tracker.value, digit: digit, heading: heading)
         withAnimation(.spring(duration: pace, bounce: Self.bounce)) {
             position = goal
         }
