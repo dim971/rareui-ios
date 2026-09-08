@@ -10,7 +10,9 @@ import SwiftUI
 /// and has no business leaving the main actor in the first place.
 @MainActor
 let catalog: [CatalogSection] = [
-    CatalogSection("Display", entries: []),
+    CatalogSection("Display", entries: [
+        animatedCounterEntry
+    ]),
     CatalogSection("AI Kit", entries: []),
     CatalogSection("Navigation", entries: []),
     CatalogSection("Inputs", entries: []),
