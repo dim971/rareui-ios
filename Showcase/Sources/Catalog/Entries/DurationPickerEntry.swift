@@ -22,7 +22,10 @@ let durationPickerEntry = CatalogEntry(
 
         Demo(
             "Its own limits",
-            note: "Typing past the limit clamps the field and gives it a nudge, so the refusal is felt rather than read.",
+            note: """
+            Typing past the limit clamps the field and gives it a nudge, so the refusal is \
+            felt rather than read.
+            """,
             code: """
             DurationPicker(value: $duration, maxHours: 8, maxMinutes: 59)
             """
