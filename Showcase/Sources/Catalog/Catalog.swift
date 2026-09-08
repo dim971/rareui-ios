@@ -17,6 +17,7 @@ let catalog: [CatalogSection] = [
         matrixOrbEntry
     ]),
     CatalogSection("Navigation", entries: [
+        bounceSidebarEntry,
         gooeyNavEntry
     ]),
     CatalogSection("Inputs", entries: []),
