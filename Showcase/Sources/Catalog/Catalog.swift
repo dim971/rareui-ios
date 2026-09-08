@@ -20,7 +20,8 @@ let catalog: [CatalogSection] = [
     CatalogSection("Navigation", entries: [
         bounceSidebarEntry,
         hookSidebarEntry,
-        gooeyNavEntry
+        gooeyNavEntry,
+        scrollProgressEntry
     ]),
     CatalogSection("Inputs", entries: [
         deleteButtonEntry,
