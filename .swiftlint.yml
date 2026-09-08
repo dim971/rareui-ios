@@ -1,0 +1,35 @@
+excluded:
+  - .build
+  - Tests/RareUITests/Fixtures
+
+disabled_rules:
+  - todo
+
+opt_in_rules:
+  # the API design guidelines ask for a doc comment on every declaration
+  - missing_docs
+
+line_length:
+  warning: 110
+  error: 140
+
+identifier_name:
+  # the ported maths works in terms of x/y/w/h/r/t/uv, matching the upstream source
+  min_length: 1
+  excluded: [x, y, z, w, h, r, g, b, a, t, d, i, n, p, q, f, dt, dx, dy, uv, hp, lp]
+
+type_name:
+  min_length: 2
+
+function_parameter_count:
+  warning: 7
+
+# Several components take upstream's full prop list, which is long by design:
+# trimming it would be a departure from the original that nobody asked for.
+type_body_length:
+  warning: 400
+  error: 600
+
+file_length:
+  warning: 500
+  error: 800
