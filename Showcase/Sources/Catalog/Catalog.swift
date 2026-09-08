@@ -21,7 +21,9 @@ let catalog: [CatalogSection] = [
         hookSidebarEntry,
         gooeyNavEntry
     ]),
-    CatalogSection("Inputs", entries: []),
+    CatalogSection("Inputs", entries: [
+        otpInputEntry
+    ]),
     CatalogSection("Feedback", entries: [])
 ]
 
