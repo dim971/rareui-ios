@@ -11,7 +11,8 @@ import SwiftUI
 @MainActor
 let catalog: [CatalogSection] = [
     CatalogSection("Display", entries: [
-        animatedCounterEntry
+        animatedCounterEntry,
+        stepPlayerEntry
     ]),
     CatalogSection("AI Kit", entries: [
         fluidOrbEntry,
