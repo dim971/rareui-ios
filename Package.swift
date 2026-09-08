@@ -12,6 +12,10 @@ let package = Package(
     targets: [
         .target(
             name: "RareUI",
+            // Metal sources are not compiled unless they are declared. Processing them
+            // produces a metallib inside the module's bundle, which is where
+            // `ShaderLibrary.bundle(.module)` looks for it.
+            resources: [.process("Shaders")],
             swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .testTarget(

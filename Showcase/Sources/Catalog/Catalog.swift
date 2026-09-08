@@ -14,6 +14,7 @@ let catalog: [CatalogSection] = [
         animatedCounterEntry
     ]),
     CatalogSection("AI Kit", entries: [
+        fluidOrbEntry,
         matrixOrbEntry
     ]),
     CatalogSection("Navigation", entries: [
