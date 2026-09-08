@@ -5,8 +5,10 @@ import SwiftUI
 struct CatalogHomeScreen: View {
     @Environment(ShowcaseSettings.self) private var settings
 
+    @State private var path = ShowcaseLaunch.initialPath
+
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             List {
                 Section {
                     AccentControls()
