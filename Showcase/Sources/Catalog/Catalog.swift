@@ -29,6 +29,7 @@ let catalog: [CatalogSection] = [
     ]),
     CatalogSection("Inputs", entries: [
         deleteButtonEntry,
+        durationPickerEntry,
         otpInputEntry
     ]),
     CatalogSection("Feedback", entries: [
