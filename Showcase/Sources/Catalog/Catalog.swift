@@ -22,6 +22,7 @@ let catalog: [CatalogSection] = [
         gooeyNavEntry
     ]),
     CatalogSection("Inputs", entries: [
+        deleteButtonEntry,
         otpInputEntry
     ]),
     CatalogSection("Feedback", entries: [
