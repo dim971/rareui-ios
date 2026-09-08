@@ -24,7 +24,9 @@ let catalog: [CatalogSection] = [
     CatalogSection("Inputs", entries: [
         otpInputEntry
     ]),
-    CatalogSection("Feedback", entries: [])
+    CatalogSection("Feedback", entries: [
+        notificationBellEntry
+    ])
 ]
 
 /// Every entry in the catalog, flattened, for lookup by identifier.

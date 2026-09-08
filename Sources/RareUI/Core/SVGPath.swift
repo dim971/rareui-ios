@@ -17,6 +17,24 @@ import SwiftUI
 
 /// Reads an SVG path's `d` attribute.
 public enum SVGPath {
+    /// Paths already read, kept so a shape redrawn every frame is not re-parsed every frame.
+    ///
+    /// The strings are icon definitions written into the source, so there is a small fixed
+    /// number of them and nothing to evict.
+    @MainActor private static var cache: [String: Path] = [:]
+
+    /// Builds a path from an SVG `d` string, reusing an earlier reading of the same string.
+    ///
+    /// - Parameter d: The path data, as it appears in the `d` attribute.
+    /// - Returns: The path.
+    @MainActor
+    public static func cached(_ d: String) -> Path {
+        if let known = cache[d] { return known }
+        let parsed = path(d)
+        cache[d] = parsed
+        return parsed
+    }
+
     // A parser's dispatch is one branch per command, and there are twenty of them. Cutting
     // it into pieces to satisfy a complexity count would spread a single flat table across
     // several functions and make it harder, not easier, to check against the specification.
@@ -392,5 +410,61 @@ private extension Character {
 
     var isSVGCommand: Bool {
         "MmLlHhVvCcSsQqTtAaZz".contains(self)
+    }
+}
+
+/// An SVG path drawn to fill a view, scaled from the box it was drawn in.
+///
+/// The `d` string is quoted from upstream unchanged, which is the point: the icon is the
+/// same drawing rather than a transcription of it.
+public struct SVGShape: Shape {
+    /// The path data, as it appears in the `d` attribute.
+    public let d: String
+    /// The box the path was drawn in, from the SVG's `viewBox`.
+    public let viewBox: CGSize
+    /// Whether to keep the drawing's proportions, letterboxing it if the view is a
+    /// different shape. SVG calls the alternative `preserveAspectRatio="none"`.
+    public let preservesAspectRatio: Bool
+
+    /// Creates a shape from SVG path data.
+    ///
+    /// - Parameters:
+    ///   - d: The path data.
+    ///   - viewBox: The box the path was drawn in.
+    ///   - preservesAspectRatio: Whether to keep the drawing's proportions. Defaults to `true`.
+    public init(_ d: String, viewBox: CGSize, preservesAspectRatio: Bool = true) {
+        self.d = d
+        self.viewBox = viewBox
+        self.preservesAspectRatio = preservesAspectRatio
+    }
+
+    public func path(in rect: CGRect) -> Path {
+        guard viewBox.width > 0, viewBox.height > 0 else { return Path() }
+        let drawing = MainActor.assumeIsolated { SVGPath.cached(d) }
+
+        var scaleX = rect.width / viewBox.width
+        var scaleY = rect.height / viewBox.height
+        if preservesAspectRatio {
+            let fit = min(scaleX, scaleY)
+            scaleX = fit
+            scaleY = fit
+        }
+
+        let width = viewBox.width * scaleX
+        let height = viewBox.height * scaleY
+        return drawing
+            .applying(CGAffineTransform(scaleX: scaleX, y: scaleY))
+            .offsetBy(dx: rect.minX + (rect.width - width) / 2, dy: rect.minY + (rect.height - height) / 2)
+    }
+
+    /// Where a point in the drawing's own box falls in the view, as a unit point.
+    ///
+    /// Rotating an icon about a part of itself needs this: upstream turns the bell's
+    /// clapper about the top middle of the clapper, not of the bell.
+    ///
+    /// - Parameter point: The point, in the drawing's coordinates.
+    /// - Returns: The matching unit point.
+    public func unitPoint(_ point: CGPoint) -> UnitPoint {
+        UnitPoint(x: point.x / viewBox.width, y: point.y / viewBox.height)
     }
 }
