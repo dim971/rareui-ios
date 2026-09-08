@@ -16,7 +16,9 @@ let catalog: [CatalogSection] = [
     CatalogSection("AI Kit", entries: [
         matrixOrbEntry
     ]),
-    CatalogSection("Navigation", entries: []),
+    CatalogSection("Navigation", entries: [
+        gooeyNavEntry
+    ]),
     CatalogSection("Inputs", entries: []),
     CatalogSection("Feedback", entries: [])
 ]
