@@ -11,9 +11,13 @@ make test          # the numeric goldens
 make showcase      # build and run the catalog app in the simulator
 ```
 
-You need Xcode 16+ and [XcodeGen](https://github.com/yonaskolb/XcodeGen)
+You need Xcode 26+ and [XcodeGen](https://github.com/yonaskolb/XcodeGen)
 (`brew install xcodegen`); the showcase project is generated from
 `Showcase/project.yml` rather than checked in.
+
+Xcode 26 rather than 16 because the compiler in Xcode 16.4 crashes lowering one
+of these components. It is a defect in that toolchain rather than in this code,
+and it is recorded in [docs/fidelity.md](docs/fidelity.md).
 
 ## Before you open a pull request
 
