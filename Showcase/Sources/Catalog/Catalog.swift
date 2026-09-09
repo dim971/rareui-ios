@@ -19,6 +19,7 @@ let catalog: [CatalogSection] = [
     ]),
     CatalogSection("AI Kit", entries: [
         fluidOrbEntry,
+        gridRevealEntry,
         matrixOrbEntry
     ]),
     CatalogSection("Navigation", entries: [

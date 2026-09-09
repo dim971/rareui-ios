@@ -209,7 +209,7 @@ public struct GitHubActivity: View {
         .defaultScrollAnchor(.trailing)
         .padding(16)
         // Room under the grid for the footer, which sits over the card rather than in it.
-        .padding(.bottom, 52)
+        .padding(.bottom, repos.isEmpty ? 0 : 52)
         .background {
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .fill(theme.background)
@@ -218,7 +218,9 @@ public struct GitHubActivity: View {
                         .strokeBorder(theme.border, lineWidth: 1)
                 }
         }
-        .overlay(alignment: .bottom) { footer }
+        // No repositories means nothing to rank, and a footer that says so is worse than
+        // no footer. Upstream always shows it because it always has data to put in it.
+        .overlay(alignment: .bottom) { if !repos.isEmpty { footer } }
         .task { await sweep() }
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Contribution activity")

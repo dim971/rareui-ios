@@ -44,7 +44,7 @@ let gitHubActivityEntry = CatalogEntry(
         cellSize: 5,
         months: 2
     )
-    .frame(width: 110)
+    .frame(width: 100)
 }
 
 /// A year of plausible looking activity, so the demo has something to draw.
