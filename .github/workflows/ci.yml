@@ -12,7 +12,7 @@ concurrency:
 jobs:
   package:
     name: Package
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
       - uses: actions/checkout@v4
 
@@ -25,7 +25,9 @@ jobs:
           fi
 
       - name: Show toolchain
-        run: swift --version
+        run: |
+          xcodebuild -version
+          swift --version
 
       - name: Build
         run: swift build --build-tests
@@ -47,7 +49,7 @@ jobs:
 
   lint:
     name: Lint
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
       - uses: actions/checkout@v4
       - run: brew install swiftformat swiftlint
@@ -56,7 +58,7 @@ jobs:
 
   showcase:
     name: Showcase app
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
       - uses: actions/checkout@v4
       - run: brew install xcodegen
