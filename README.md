@@ -59,7 +59,7 @@ Swift Package Manager:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/dim971/rareui-ios", from: "0.1.0"),
+    .package(url: "https://github.com/dim971/rareui-ios", from: "0.2.0"),
 ]
 ```
 
@@ -180,7 +180,7 @@ than by eye. That is only worth something if the exceptions are written down,
 so [docs/fidelity.md](docs/fidelity.md) lists all of them: what could not come
 across, why, and what was done instead.
 
-The parts that can be checked exactly are checked: two hundred and nineteen
+The parts that can be checked exactly are checked: two hundred and twenty-four
 tests covering the grouping arithmetic, the field functions, the gooey seam's
 waist, the gravity height map, the path morph, the tokeniser and the rest. None
 of them assert that an animation looks right. They assert the things that can be

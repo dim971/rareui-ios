@@ -6,6 +6,28 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.0]
+
+Brings the components' surfaces back in line with upstream's props, after an
+audit that read every upstream prop list against the signature that ports it.
+
+### Added
+
+- `GitHubActivity` takes `accentScale`, a ramp of colours rather than one colour
+  shaded five ways. Four colours are the four levels that have something in
+  them, which is how GitHub's own scale is stated; five or more set the empty
+  level too.
+- `GitHubActivity` takes `expanded` and `onExpandedChange`, so the footer can be
+  controlled rather than only keeping its own state.
+- `OTPInput` takes `autoFocus`.
+- `DurationPicker` takes `defaultEditing` and `onEditingChange`. The callback
+  sits after `onConfirm` in the initialiser rather than before it, so that an
+  unlabelled trailing closure still means `onConfirm`.
+- The showcase demonstrates the counter the way upstream's page does, with a
+  ruler you drag. The ruler is the demonstration and not the component: upstream
+  draws it on the page out of a range input and a row of spans.
+- Five more tests, over the colour ramp.
+
 ## [0.1.0]
 
 First release. A SwiftUI port of [Rare UI](https://www.rareui.com), the animated
@@ -61,5 +83,6 @@ about before reaching for a component:
 - Xcode 26 or later is required. The compiler in Xcode 16.4 crashes lowering
   `EmojiReaction`, which is a defect in that toolchain rather than in this code.
 
-[Unreleased]: https://github.com/dim971/rareui-ios/compare/0.1.0...HEAD
+[Unreleased]: https://github.com/dim971/rareui-ios/compare/0.2.0...HEAD
+[0.2.0]: https://github.com/dim971/rareui-ios/releases/tag/0.2.0
 [0.1.0]: https://github.com/dim971/rareui-ios/releases/tag/0.1.0

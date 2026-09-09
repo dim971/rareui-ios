@@ -96,7 +96,7 @@ picture come apart first. Given no picture it paces itself, creeping toward nine
 holding there.
 
 ```swift
-GridReveal(image: photo, caption: "Generating")
+GridReveal(image: photo, caption: "Generating", onRevealComplete: ready)
 GridReveal(image: photo, progress: job.progress)
 ```
 
