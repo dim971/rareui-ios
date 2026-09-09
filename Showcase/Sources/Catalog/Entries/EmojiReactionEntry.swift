@@ -25,15 +25,7 @@ let emojiReactionEntry = CatalogEntry(
             code: """
             EmojiReaction(size: .large, align: .leading)
             """
-        ) {
-            HStack {
-                EmojiReaction(size: .small, align: .leading)
-                Spacer()
-                EmojiReaction(size: .medium)
-                Spacer()
-                EmojiReaction(size: .large, align: .trailing)
-            }
-        },
+        ) { EmojiReactionSizes() },
 
         Demo(
             "Your own emoji",
@@ -46,6 +38,23 @@ let emojiReactionEntry = CatalogEntry(
     ]
 ) {
     EmojiReaction(size: .small)
+}
+
+/// Three of them across a row.
+///
+/// A named view rather than an inline HStack, because Swift 6.1.2 crashes lowering three
+/// of these inside one view builder closure. It is a compiler bug rather than a mistake
+/// here, and giving the closure a name is enough to walk around it.
+private struct EmojiReactionSizes: View {
+    var body: some View {
+        HStack {
+            EmojiReaction(size: .small, align: .leading)
+            Spacer()
+            EmojiReaction(size: .medium)
+            Spacer()
+            EmojiReaction(size: .large, align: .trailing)
+        }
+    }
 }
 
 private struct EmojiReactionDemo: View {
