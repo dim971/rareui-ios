@@ -12,6 +12,7 @@ import SwiftUI
 let catalog: [CatalogSection] = [
     CatalogSection("Display", entries: [
         animatedCounterEntry,
+        codeBlockEntry,
         folderEntry,
         gitHubActivityEntry,
         gravityLettersEntry,
