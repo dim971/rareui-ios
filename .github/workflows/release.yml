@@ -17,26 +17,25 @@ jobs:
 
       # The changelog is the release notes. Keeping them in one place means they cannot
       # disagree, and it means the notes are written before the tag rather than after it.
+      #
+      # They go to a file rather than into a step output, and the file is handed to `gh`
+      # rather than interpolated into its arguments. Release notes are prose: they contain
+      # backticks, and a backtick inside a double quoted shell string is a command to run,
+      # not a character to print. The first version of this workflow ate every code span
+      # in the notes, which is the harmless end of what that mistake can do.
       - name: Read the changelog
-        id: notes
         run: |
           version="${GITHUB_REF_NAME}"
-          notes=$(awk -v v="$version" '
+          awk -v v="$version" '
             $0 ~ "^## \\[" v "\\]" { found = 1; next }
             found && /^## \[/ { exit }
             found { print }
-          ' CHANGELOG.md)
+          ' CHANGELOG.md > release-notes.md
 
-          if [ -z "$(echo "$notes" | tr -d '[:space:]')" ]; then
+          if [ ! -s release-notes.md ] || ! grep -q '[^[:space:]]' release-notes.md; then
             echo "::error::CHANGELOG.md has no section for $version"
             exit 1
           fi
-
-          {
-            echo "body<<CHANGELOG_EOF"
-            echo "$notes"
-            echo "CHANGELOG_EOF"
-          } >> "$GITHUB_OUTPUT"
 
       - name: Create the release
         env:
@@ -44,4 +43,4 @@ jobs:
         run: |
           gh release create "$GITHUB_REF_NAME" \
             --title "$GITHUB_REF_NAME" \
-            --notes "${{ steps.notes.outputs.body }}"
+            --notes-file release-notes.md
