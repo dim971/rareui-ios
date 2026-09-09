@@ -98,6 +98,11 @@ struct GravityField {
         at x: Double,
         limit: Int
     ) {
+        // Written out rather than inlined: CGFloat and Double are the same type here and
+        // two different types to the compiler, and mixing them inside one expression is
+        // ambiguous on some toolchains and not on others.
+        let squareness = min(1.0, Double(measurement.height) / max(1.0, Double(measurement.width)))
+
         var body = GravityBody(
             id: nextID,
             glyph: glyph,
@@ -118,8 +123,7 @@ struct GravityField {
             spin: 0,
             // A squarer glyph tumbles faster than a tall thin one, which is upstream's
             // squareness factor: it is the difference between a dropped O and a dropped I.
-            spinRate: Double.random(in: -1 ... 1)
-                * (50 + 130 * min(1, measurement.height / max(1, measurement.width))),
+            spinRate: Double.random(in: -1 ... 1) * (50 + 130 * squareness),
             rotation: 0,
             restRotation: 0,
             sway: 0,
