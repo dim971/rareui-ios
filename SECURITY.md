@@ -19,15 +19,12 @@ it is resolved.
 
 ## Scope
 
-This is a component library with no persistence, no credentials and no
-dependencies. It has one deliberate exception: `GitHubActivity` can fetch a
-contribution grid from a public API when you give it a username, and
-`GridReveal` loads an image you point it at. Both are opt-in, both take URLs
-from the caller, and neither sends anything anywhere. Everything else draws
-and animates locally.
+This is a component library with no network access, no persistence, no
+credentials and no dependencies. Every component here draws and animates from
+values it is given; where the original fetches something for itself, the port
+takes the data as a parameter instead, so an application decides what is
+loaded and when.
 
 The plausible surface is therefore small: input that makes a component
 misbehave, a size, a count or a colour that causes a crash, a hang, a runaway
-animation loop or unbounded memory use. Those are worth reporting, as is
-anything the two networked components do with a response that you would not
-expect.
+animation loop or unbounded memory use. Those are worth reporting.

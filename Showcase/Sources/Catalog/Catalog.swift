@@ -13,6 +13,7 @@ let catalog: [CatalogSection] = [
     CatalogSection("Display", entries: [
         animatedCounterEntry,
         folderEntry,
+        gitHubActivityEntry,
         gravityLettersEntry,
         stepPlayerEntry
     ]),
