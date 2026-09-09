@@ -177,14 +177,17 @@ struct EmojiTriggerFace: View {
 }
 
 /// The bar of emoji, and the tail that points back at the trigger.
-struct EmojiBar<Flight: View>: View {
+///
+/// It does not hold the particle layer. Storing one view inside another makes the second
+/// generic over the first's whole opaque type, and a type like that is exactly what the
+/// compiler on Xcode 16 falls over lowering. The particles are overlaid from outside.
+struct EmojiBar: View {
     let emojis: [String]
     let size: EmojiReactionSize
     let theme: RareUITheme
     let align: EmojiReactionAlign
     let reduceMotion: Bool
     let spring: Animation
-    let flight: Flight
     let onPress: (String, CGPoint) -> Void
     let onHoldStart: (String, CGPoint) -> Void
     let onHoldEnd: () -> Void
@@ -194,6 +197,7 @@ struct EmojiBar<Flight: View>: View {
             row
             tail
         }
+        .coordinateSpace(.named("rareui.emojibar"))
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Pick a reaction")
     }
@@ -215,8 +219,6 @@ struct EmojiBar<Flight: View>: View {
         }
         .padding(size.padding)
         .background(Capsule().fill(theme.surface))
-        .overlay { flight }
-        .coordinateSpace(.named("rareui.emojibar"))
     }
 
     /// Two circles of falling size, which is how a message bubble points at whoever sent it.

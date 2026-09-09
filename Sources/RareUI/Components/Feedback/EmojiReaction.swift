@@ -228,11 +228,13 @@ public struct EmojiReaction: View {
             align: align,
             reduceMotion: reduceMotion,
             spring: Self.emojiSpring,
-            flight: flight,
             onPress: { emoji, origin in react(emoji, at: origin) },
             onHoldStart: { emoji, origin in startHolding(emoji, at: origin) },
             onHoldEnd: { holding?.cancel() }
         )
+        // Overlaid rather than handed to the bar. The overlay is still a descendant of the
+        // bar's named coordinate space, so a particle knows where in the bar it started.
+        .overlay { flight }
     }
 
     private var flight: some View {
