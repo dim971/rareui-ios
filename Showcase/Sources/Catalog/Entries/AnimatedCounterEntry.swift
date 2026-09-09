@@ -7,6 +7,19 @@ let animatedCounterEntry = CatalogEntry(
     summary: "An odometer. Each digit is a wheel that rolls to its new face.",
     demos: [
         Demo(
+            "Drag the ruler",
+            note: """
+            Upstream's own demonstration, down to its numbers: forty-one ticks over a \
+            hundred and fifty thousand, and a dash that is a tick rather than an overlay, \
+            so it lands dead on one. The ruler is the demonstration and not the component: \
+            upstream draws it on the page, out of a range input and a row of spans.
+            """,
+            code: """
+            AnimatedCounter(value: value, duration: 0.5, grouping: .indian, prefix: "$")
+            """
+        ) { CounterRuler() },
+
+        Demo(
             "Up and down",
             note: "The roll follows the value: up when it grows, down when it shrinks.",
             code: """
@@ -140,5 +153,75 @@ private struct CounterPace: View {
                 .buttonStyle(.bordered)
                 .font(.subheadline)
         }
+    }
+}
+
+/// Upstream's own demonstration of the counter: a ruler you drag.
+///
+/// It lives here rather than in the library because it lives on the page rather than in the
+/// component upstream, where it is a range input with a row of spans over it. The dash is
+/// one of the ticks rather than something drawn on top of them, which is what makes it land
+/// exactly on a tick instead of between two.
+private struct CounterRuler: View {
+    /// How far the ruler goes, from upstream's `MAX`.
+    private static let maximum = 150_000.0
+    /// How many ticks it is drawn with, from `TICKS`.
+    private static let ticks = 41
+    /// How long the counter takes to roll, from `ROLL`.
+    private static let roll = 0.5
+    /// Upstream's `ACCENT`.
+    private static let accent = Color(hex: "#FC4C01")
+
+    @Environment(\.colorScheme) private var colorScheme
+    @State private var value = 12480.0
+
+    /// The ruler only changes when the dash crosses a tick, not on every pixel of the drag.
+    private var marker: Int {
+        min(max(Int((value / Self.maximum * Double(Self.ticks - 1)).rounded()), 0), Self.ticks - 1)
+    }
+
+    var body: some View {
+        VStack(spacing: 56) {
+            AnimatedCounter(value: value, duration: Self.roll, grouping: .indian, prefix: "$")
+                .font(.system(size: 48, weight: .medium, design: .monospaced))
+                .tracking(-0.02 * 48)
+
+            GeometryReader { proxy in
+                HStack(spacing: 0) {
+                    ForEach(0 ..< Self.ticks, id: \.self) { index in
+                        tick(at: index)
+                        if index < Self.ticks - 1 { Spacer(minLength: 0) }
+                    }
+                }
+                .frame(height: 32, alignment: .bottom)
+                .contentShape(.rect)
+                .gesture(
+                    DragGesture(minimumDistance: 0)
+                        .onChanged { drag in
+                            guard proxy.size.width > 0 else { return }
+                            let fraction = drag.location.x / proxy.size.width
+                            value = min(max(fraction * Self.maximum, 0), Self.maximum)
+                        }
+                )
+            }
+            .frame(height: 32)
+            .accessibilityElement()
+            .accessibilityLabel("Counter value")
+            .accessibilityValue("\(Int(value))")
+        }
+    }
+
+    private func tick(at index: Int) -> some View {
+        let isMarker = index == marker
+        let passed = index < marker
+        // Upstream's two tick colours, which are not the theme's: the passed ones take the
+        // track colour and the ones still ahead take a pale grey of their own.
+        let ahead = colorScheme == .dark ? Color(hex: "#3C3C43") : Color(hex: "#E7E7EF")
+        let behind = colorScheme == .dark ? Color(hex: "#EBEBF5") : Color(hex: "#3C3C43")
+
+        return Capsule()
+            .fill(isMarker ? Self.accent : passed ? behind : ahead)
+            .frame(width: isMarker ? 3 : 2, height: isMarker ? 28 : passed ? 20 : 14)
+            .animation(.easeInOut(duration: 0.2), value: marker)
     }
 }
