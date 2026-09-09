@@ -55,6 +55,7 @@ public struct DurationPicker: View {
     private let maxMinutes: Int
     private let hoursLabel: String
     private let minutesLabel: String
+    private let onEditingChange: ((Bool) -> Void)?
     private let onConfirm: ((DurationValue) -> Void)?
 
     @Environment(\.rareUITheme) private var theme
@@ -62,7 +63,7 @@ public struct DurationPicker: View {
     @Environment(\.isEnabled) private var isEnabled
     @FocusState private var focus: DurationField?
 
-    @State private var editing = false
+    @State private var editing: Bool
     @State private var hoursText = ""
     @State private var minutesText = ""
     @State private var errorNudge = 0.0
@@ -116,20 +117,29 @@ public struct DurationPicker: View {
     ///   - maxMinutes: The largest number of minutes accepted.
     ///   - hoursLabel: The word after the hours field.
     ///   - minutesLabel: The word after the minutes field.
+    ///   - defaultEditing: Whether it opens already being edited.
     ///   - onConfirm: Called with the duration when the tick is pressed.
+    ///   - onEditingChange: Called when the pen opens or closes it.
     public init(
         value: Binding<DurationValue>,
         maxHours: Int = 24,
         maxMinutes: Int = 60,
         hoursLabel: String = "Hr.",
         minutesLabel: String = "Min.",
-        onConfirm: ((DurationValue) -> Void)? = nil
+        defaultEditing: Bool = false,
+        // After `onConfirm` on purpose. Swift matches an unlabelled trailing closure to the
+        // first parameter that can take one, counting forward, so putting this before it
+        // would silently rebind every `DurationPicker(value:) { ... }` already written.
+        onConfirm: ((DurationValue) -> Void)? = nil,
+        onEditingChange: ((Bool) -> Void)? = nil
     ) {
         _value = value
         self.maxHours = maxHours
         self.maxMinutes = maxMinutes
         self.hoursLabel = hoursLabel
         self.minutesLabel = minutesLabel
+        self.onEditingChange = onEditingChange
+        _editing = State(initialValue: defaultEditing)
         self.onConfirm = onConfirm
     }
 
@@ -238,6 +248,7 @@ public struct DurationPicker: View {
         Button {
             let next = !editing
             editing = next
+            onEditingChange?(next)
             if next {
                 focus = .hours
             } else {

@@ -119,6 +119,7 @@ public struct OTPInput: View {
     private let size: OTPSize
     private let status: OTPStatus
     private let mask: Bool
+    private let autoFocus: Bool
     private let onComplete: ((String) -> Void)?
 
     @Environment(\.rareUITheme) private var theme
@@ -160,6 +161,7 @@ public struct OTPInput: View {
     ///   - size: How large to draw the boxes.
     ///   - status: What the field is saying about the code.
     ///   - mask: Whether to show bullets instead of the characters.
+    ///   - autoFocus: Whether to take the keyboard as soon as the row appears.
     ///   - onComplete: Called with the code once the last box is filled.
     public init(
         code: Binding<String>,
@@ -168,6 +170,7 @@ public struct OTPInput: View {
         size: OTPSize = .medium,
         status: OTPStatus = .idle,
         mask: Bool = false,
+        autoFocus: Bool = false,
         onComplete: ((String) -> Void)? = nil
     ) {
         _code = code
@@ -176,6 +179,7 @@ public struct OTPInput: View {
         self.size = size
         self.status = status
         self.mask = mask
+        self.autoFocus = autoFocus
         self.onComplete = onComplete
     }
 
@@ -212,7 +216,12 @@ public struct OTPInput: View {
         .onChange(of: code) { old, new in
             sanitise(new, wasLonger: new.count < old.count)
         }
-        .onAppear { sanitise(code, wasLonger: false) }
+        .onAppear {
+            sanitise(code, wasLonger: false)
+            // A one time code field is usually the only thing on the screen, so taking the
+            // keyboard is a kindness rather than a rudeness. Off by default all the same.
+            if autoFocus, isEnabled { isFocused = true }
+        }
         .accessibilityElement(children: .contain)
     }
 

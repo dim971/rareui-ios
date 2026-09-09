@@ -4,6 +4,7 @@
 //
 
 @testable import RareUI
+import SwiftUI
 import Testing
 
 @Suite("Contribution levels")
@@ -30,6 +31,51 @@ struct GitHubLevelTests {
     func clamped() {
         #expect(gitHubLevelOpacity(-3) == gitHubLevelOpacity(0))
         #expect(gitHubLevelOpacity(99) == gitHubLevelOpacity(4))
+    }
+}
+
+@Suite("Contribution scales")
+struct GitHubAccentScaleTests {
+    private let ramp = [
+        Color(hex: "#0E4429"), Color(hex: "#006D32"),
+        Color(hex: "#26A641"), Color(hex: "#39D353")
+    ]
+
+    @Test("four colours are the four levels that have something in them")
+    func fourColours() {
+        // An empty day is left to show the cell underneath, exactly as it is with a single
+        // accent shaded five ways.
+        #expect(gitHubLevelInk(0, scale: ramp) == .clear)
+        #expect(gitHubLevelInk(1, scale: ramp) == ramp[0])
+        #expect(gitHubLevelInk(4, scale: ramp) == ramp[3])
+    }
+
+    @Test("five or more set the empty level too")
+    func fiveColours() {
+        let full = [Color.white] + ramp
+        #expect(gitHubLevelInk(0, scale: full) == .white)
+        #expect(gitHubLevelInk(1, scale: full) == ramp[0])
+        #expect(gitHubLevelInk(4, scale: full) == ramp[3])
+    }
+
+    @Test("a level outside the range is brought back into it")
+    func clampedLevel() {
+        #expect(gitHubLevelInk(-2, scale: ramp) == gitHubLevelInk(0, scale: ramp))
+        #expect(gitHubLevelInk(99, scale: ramp) == gitHubLevelInk(4, scale: ramp))
+    }
+
+    @Test("a scale too short repeats its last colour rather than falling off the end")
+    func shortScale() {
+        let two = [Color.red, Color.blue]
+        #expect(gitHubLevelInk(0, scale: two) == .clear)
+        #expect(gitHubLevelInk(1, scale: two) == .red)
+        #expect(gitHubLevelInk(2, scale: two) == .blue)
+        #expect(gitHubLevelInk(4, scale: two) == .blue)
+    }
+
+    @Test("no scale at all draws nothing rather than trapping")
+    func emptyScale() {
+        #expect(gitHubLevelInk(3, scale: []) == .clear)
     }
 }
 

@@ -14,87 +14,6 @@
 
 import SwiftUI
 
-/// One day's contributions.
-public struct GitHubContribution: Identifiable, Hashable, Sendable {
-    /// The day.
-    public let date: Date
-    /// How many contributions were made.
-    public let count: Int
-    /// How dark the cell is drawn, from `0` for none to `4` for the most.
-    public let level: Int
-
-    public var id: Date {
-        date
-    }
-
-    /// Creates a day.
-    ///
-    /// - Parameters:
-    ///   - date: The day.
-    ///   - count: How many contributions were made.
-    ///   - level: How dark to draw it, `0` through `4`.
-    public init(date: Date, count: Int, level: Int) {
-        self.date = date
-        self.count = count
-        self.level = min(4, max(0, level))
-    }
-}
-
-/// One repository's share of the contributions.
-public struct GitHubRepoContribution: Identifiable, Hashable, Sendable {
-    /// The repository's name.
-    public let name: String
-    /// How many contributions went to it.
-    public let count: Int
-
-    public var id: String {
-        name
-    }
-
-    /// Creates a repository's share.
-    ///
-    /// - Parameters:
-    ///   - name: The repository's name.
-    ///   - count: How many contributions went to it.
-    public init(name: String, count: Int) {
-        self.name = name
-        self.count = count
-    }
-}
-
-/// How dark each level is drawn, as a fraction of the accent.
-///
-/// Level zero is not drawn at all: the cell underneath shows through, which is what gives
-/// the grid its empty days without spending a colour on them.
-func gitHubLevelOpacity(_ level: Int) -> Double {
-    switch min(4, max(0, level)) {
-    case 1: 0.3
-    case 2: 0.52
-    case 3: 0.76
-    case 4: 1
-    default: 0
-    }
-}
-
-/// The gap between two cells, which grows with them.
-///
-/// - Parameter cellSize: How large one cell is, in points.
-/// - Returns: The gap, never below two points.
-func gitHubCellGap(cellSize: Double) -> Double {
-    max(2, (cellSize / 4).rounded())
-}
-
-/// How many weeks are in a given number of months.
-///
-/// Never zero, because a grid of no weeks would be a grid of the whole history: upstream
-/// notes that slicing the last nought weeks off an array hands back all of it.
-///
-/// - Parameter months: How many months to show.
-/// - Returns: The number of weeks.
-func gitHubWeeks(months: Int) -> Int {
-    max(1, Int(ceil(Double(months) * 365.25 / 12 / 7)))
-}
-
 /// A contribution heatmap with a footer that opens into a ranked list.
 ///
 /// ```swift
@@ -107,17 +26,34 @@ public struct GitHubActivity: View {
     private let contributions: [GitHubContribution]
     private let repos: [GitHubRepoContribution]
     private let accent: Color
+    private let accentScale: [Color]
     private let cellSize: Double
     private let months: Int
     private let label: String
     private let showsMonths: Bool
+    private let expanded: Binding<Bool>?
+    private let onExpandedChange: ((Bool) -> Void)?
 
     @Environment(\.rareUITheme) private var theme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    @State private var expanded = false
+    @State private var uncontrolledExpanded = false
     @State private var swept = false
     @Namespace private var avatars
+
+    /// Whether the footer is open.
+    ///
+    /// Controlled when the caller says so, and keeping its own when they do not, which is
+    /// the same choice upstream offers through `open` and `defaultOpen`.
+    private var isExpanded: Bool {
+        expanded?.wrappedValue ?? uncontrolledExpanded
+    }
+
+    private func setExpanded(_ open: Bool) {
+        expanded?.wrappedValue = open
+        uncontrolledExpanded = open
+        onExpandedChange?(open)
+    }
 
     /// How many avatars the collapsed footer shows before it stops.
     private static var stackLimit: Int {
@@ -159,27 +95,38 @@ public struct GitHubActivity: View {
     /// - Parameters:
     ///   - contributions: One entry per day, oldest first.
     ///   - repos: The repositories the contributions went to, in whatever order you want them ranked.
-    ///   - accent: The colour the cells are drawn in. Defaults to GitHub's green.
+    ///   - accent: The colour the cells are drawn in, shaded by level. Defaults to GitHub's green.
+    ///   - accentScale: One colour per level, for a ramp of your own rather than one colour
+    ///     shaded five ways. Four colours are the four levels that have something in them;
+    ///     five or more set the empty level too. Wins over `accent` when it is not empty.
     ///   - cellSize: How large one cell is, in points.
     ///   - months: How many months to show.
     ///   - label: The footer's wording.
     ///   - showsMonths: Whether to label the months above the grid.
+    ///   - expanded: Whether the footer is open. Leave it out and the view keeps its own.
+    ///   - onExpandedChange: Called when the footer is opened or closed.
     public init(
         contributions: [GitHubContribution],
         repos: [GitHubRepoContribution] = [],
         accent: Color = Color(hex: "#39D353"),
+        accentScale: [Color] = [],
         cellSize: Double = 11,
         months: Int = 12,
         label: String = "Top contributions in:",
-        showsMonths: Bool = false
+        showsMonths: Bool = false,
+        expanded: Binding<Bool>? = nil,
+        onExpandedChange: ((Bool) -> Void)? = nil
     ) {
         self.contributions = contributions
         self.repos = repos
         self.accent = accent
+        self.accentScale = accentScale
         self.cellSize = cellSize
         self.months = months
         self.label = label
         self.showsMonths = showsMonths
+        self.expanded = expanded
+        self.onExpandedChange = onExpandedChange
     }
 
     private var gap: Double {
@@ -252,7 +199,11 @@ public struct GitHubActivity: View {
             .frame(width: cellSize, height: cellSize)
             .overlay {
                 RoundedRectangle(cornerRadius: 3, style: .continuous)
-                    .fill(accent.opacity(gitHubLevelOpacity(day.level)))
+                    .fill(
+                        accentScale.isEmpty
+                            ? accent.opacity(gitHubLevelOpacity(day.level))
+                            : gitHubLevelInk(day.level, scale: accentScale)
+                    )
             }
             .accessibilityLabel(describe(day))
     }
@@ -280,14 +231,14 @@ public struct GitHubActivity: View {
 
     private var footer: some View {
         Group {
-            if expanded {
+            if isExpanded {
                 expandedPanel
             } else {
                 collapsedFooter
             }
         }
         .padding(12)
-        .animation(reduceMotion ? nil : Self.panelSpring, value: expanded)
+        .animation(reduceMotion ? nil : Self.panelSpring, value: isExpanded)
     }
 
     private var collapsedFooter: some View {
@@ -360,17 +311,17 @@ public struct GitHubActivity: View {
 
     private var chevron: some View {
         Button {
-            expanded.toggle()
+            setExpanded(!isExpanded)
         } label: {
             Image(systemName: "chevron.up")
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundStyle(theme.glyph)
-                .rotationEffect(.degrees(expanded ? 180 : 0))
+                .rotationEffect(.degrees(isExpanded ? 180 : 0))
                 .frame(width: 22, height: 22)
                 .contentShape(.rect)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(expanded ? "Hide repositories" : "Show repositories")
+        .accessibilityLabel(isExpanded ? "Hide repositories" : "Show repositories")
     }
 
     private func monthLabel(at column: Int, week: [GitHubContribution]) -> String? {

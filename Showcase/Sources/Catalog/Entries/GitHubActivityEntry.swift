@@ -24,6 +24,30 @@ let gitHubActivityEntry = CatalogEntry(
         },
 
         Demo(
+            "A ramp of your own",
+            note: """
+            One colour shaded five ways is the default. Four colours set the four levels \
+            that have something in them, which is how GitHub's own scale is stated.
+            """,
+            code: """
+            GitHubActivity(
+                contributions: days,
+                accentScale: [.init(hex: "#0E4429"), .init(hex: "#006D32"),
+                              .init(hex: "#26A641"), .init(hex: "#39D353")]
+            )
+            """
+        ) {
+            GitHubActivity(
+                contributions: SampleActivity.year,
+                accentScale: [
+                    Color(hex: "#0E4429"), Color(hex: "#006D32"),
+                    Color(hex: "#26A641"), Color(hex: "#39D353")
+                ],
+                months: 6
+            )
+        },
+
+        Demo(
             "Any accent, any size",
             code: """
             GitHubActivity(contributions: days, accent: .orange, cellSize: 8, months: 6)
