@@ -1,0 +1,8 @@
+version: 2
+updates:
+  # The package itself has no dependencies to update. The workflows do, and an action
+  # pinned to a major version still moves under you when that major is retagged.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
