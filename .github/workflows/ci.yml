@@ -14,7 +14,7 @@ jobs:
     name: Package
     runs-on: macos-26
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # The em dash is banned in this repository; see CLAUDE.md.
       - name: No em dash
@@ -51,7 +51,7 @@ jobs:
     name: Lint
     runs-on: macos-26
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: brew install swiftformat swiftlint
       - run: swiftformat --lint .
       - run: swiftlint lint --strict
@@ -60,7 +60,7 @@ jobs:
     name: Showcase app
     runs-on: macos-26
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: brew install xcodegen
       - name: Generate the project
         working-directory: Showcase
